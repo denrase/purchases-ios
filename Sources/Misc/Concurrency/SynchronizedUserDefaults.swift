@@ -25,18 +25,18 @@ internal final class SynchronizedUserDefaults {
     }
 
     func read<T>(_ action: (UserDefaults) throws -> T) rethrows -> T {
-        return try action($0)
+        return try action(userDefaults)
     }
 
     func write(_ action: (UserDefaults) throws -> Void) rethrows {
-        try action($0)
+        try action(userDefaults)
         // While Apple states `this method is unnecessary and shouldn't be used`
         // https://developer.apple.com/documentation/foundation/userdefaults/1414005-synchronize
         // It didn't become unnecessary until iOS 12 and macOS 10.14 (Mojave):
         // https://developer.apple.com/documentation/macos-release-notes/foundation-release-notes
         // there are reports it is still needed if you save to defaults then immediately kill the app.
         // Also, it has not been marked deprecated... yet.
-        $0.synchronize()
+        userDefaults.synchronize()
     }
 
 }
