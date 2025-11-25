@@ -58,7 +58,7 @@ internal final class Atomic<T> {
 
     init(_ value: T) {
         self._value = value
-        self.lock = Lock()
+        self.lock = Lock(.recursive)
     }
 
     @discardableResult
