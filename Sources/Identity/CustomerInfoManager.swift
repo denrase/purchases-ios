@@ -199,9 +199,7 @@ class CustomerInfoManager {
             let infoFromCache = try? self.cachedCustomerInfo(appUserID: appUserID)
 
             self.systemInfo.isApplicationBackgrounded { isAppBackgrounded in
-                let isCacheStale = self.withData {
-                    $0.deviceCache.isCustomerInfoCacheStale(appUserID: appUserID, isAppBackgrounded: isAppBackgrounded)
-                }
+                let isCacheStale = data.deviceCache.isCustomerInfoCacheStale(appUserID: appUserID, isAppBackgrounded: isAppBackgrounded)
 
                 if let infoFromCache = infoFromCache, !isCacheStale {
                     Logger.debug(Strings.customerInfo.vending_cache)
@@ -238,9 +236,7 @@ class CustomerInfoManager {
             return Self.createPreviewCustomerInfo()
         }
 
-        let cachedCustomerInfoData = self.withData {
-            $0.deviceCache.cachedCustomerInfoData(appUserID: appUserID)
-        }
+        let cachedCustomerInfoData = data.deviceCache.cachedCustomerInfoData(appUserID: appUserID)
         guard let customerInfoData = cachedCustomerInfoData else { return nil }
 
         do {
@@ -266,7 +262,7 @@ class CustomerInfoManager {
         if customerInfo.shouldCache {
             do {
                 let jsonData = try JSONEncoder.default.encode(customerInfo)
-                self.withData { $0.deviceCache.cache(customerInfo: jsonData, appUserID: appUserID) }
+                self.modifyData { $0.deviceCache.cache(customerInfo: jsonData, appUserID: appUserID) }
             } catch {
                 Logger.error(Strings.customerInfo.error_encoding_customerinfo(error))
             }
@@ -514,9 +510,7 @@ private extension CustomerInfoManager {
     private func fetchAndCacheCustomerInfoDataIfStale(appUserID: String,
                                                       isAppBackgrounded: Bool,
                                                       completion: CustomerInfoDataCompletion?) {
-        let isCacheStale = self.withData {
-            $0.deviceCache.isCustomerInfoCacheStale(appUserID: appUserID, isAppBackgrounded: isAppBackgrounded)
-        }
+        let isCacheStale = data.deviceCache.isCustomerInfoCacheStale(appUserID: appUserID, isAppBackgrounded: isAppBackgrounded)
 
         guard !isCacheStale, let customerInfo = try? self.cachedCustomerInfo(appUserID: appUserID) else {
             Logger.debug(isAppBackgrounded
